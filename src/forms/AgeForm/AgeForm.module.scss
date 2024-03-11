@@ -1,0 +1,53 @@
+.container {
+  padding: 10px;
+}
+
+.title {
+  padding: 40px 0 20px;
+  text-align: center;
+}
+
+.subtitle {
+  padding-bottom: 30px;
+  text-align: center;
+}
+
+.wrapper {
+  padding-bottom: 30px;
+  display: flex;
+}
+
+.inputWrapper {
+  width: 100%;
+  position: relative;
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+form {
+  label {
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  input {
+    width: 100%;
+  }
+
+  .error {
+    font-size: 0.7rem;
+    color: red;
+    position: absolute;
+    top: 26px;
+    left: 4px;
+  }
+}
+
+.listAge {
+  padding-bottom: 8px;
+}
+
