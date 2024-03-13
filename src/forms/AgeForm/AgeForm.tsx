@@ -1,9 +1,11 @@
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
+import { useRef } from 'react';
 
 import styles from './AgeForm.module.scss';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { ActionButton } from '../../components/ui/ActionButton/ActionButton';
 import { ageRequestAsync } from '../../store/age/ageAction';
+import { ageSlice } from '../../store/age/ageSlice';
 
 export const AgeForm = () => {
   const {
@@ -16,12 +18,40 @@ export const AgeForm = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.age.data);
   const error = useAppSelector((state) => state.age.error);
+  const prevNames = useRef<string[]>([]);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
     const names = data.firstName.split(' ');
 
-    dispatch(ageRequestAsync(names));
+    if (prevNames.current.join('') !== names.join('')) {
+      const controller = new AbortController();
+
+      abortControllerRef.current = controller;
+
+      dispatch(ageRequestAsync({ names, signal: controller.signal }));
+      prevNames.current = names;
+    } else {
+      dispatch(ageSlice.actions.setError('Повтор имен'));
+    }
+
     reset();
+  };
+
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value;
+
+    setTimeout(() => {
+      const currentInputValue = event.target.value;
+
+      if (inputValue === currentInputValue) {
+        handleSubmit(onSubmit)();
+      }
+    }, 3000);
   };
 
   return (
@@ -47,12 +77,13 @@ export const AgeForm = () => {
                 pattern: {
                   value: /^[a-zA-Z]+(?:\s+[a-zA-Z]+)*$/,
                   message:
-                    'Имя должно состоять из латинских букв, разделенных пробелом',
+                    'Имя должно содержать только латинские буквы и пробелы',
                 },
               })}
               id='age-form'
               className={styles.input}
               type='text'
+              onInput={handleInput}
             />
           </div>
         </div>
@@ -61,7 +92,7 @@ export const AgeForm = () => {
           <ul className={styles.listAge}>
             {data.map(({ name, age }) => (
               <li key={`${name}-${age}`}>
-                Имя: {name}, Возраст: {age}
+                Имя: {name}, Возраст: {age ?? 'не определен'}
               </li>
             ))}
           </ul>

@@ -20,7 +20,11 @@ const initialState: AgeState = {
 export const ageSlice = createSlice({
   name: 'age',
   initialState,
-  reducers: {},
+  reducers: {
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(ageRequestAsync.pending, (state) => {
@@ -29,6 +33,8 @@ export const ageSlice = createSlice({
       })
       .addCase(ageRequestAsync.fulfilled, (state, action) => {
         const { payload } = action;
+
+        state.data = [];
 
         if (Array.isArray(payload)) {
           state.data = payload;

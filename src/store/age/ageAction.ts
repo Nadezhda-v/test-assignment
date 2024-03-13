@@ -1,11 +1,16 @@
 import axios from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
+interface AgeRequestProps {
+  names: string[];
+  signal: AbortSignal;
+}
+
 export const ageRequestAsync = createAsyncThunk(
   'age/axios',
-  (names: Array<string>) => {
+  ({ names, signal }: AgeRequestProps) => {
     if (names.length > 10) {
-      throw new Error('Нельзя ввести больше 10 имен');
+      throw new Error('Введено больше 10 имен');
     }
 
     let URL_API;
@@ -21,7 +26,7 @@ export const ageRequestAsync = createAsyncThunk(
     }
 
     return axios
-      .get(`${URL_API}`)
+      .get(`${URL_API}`, { signal })
       .then(({ data }) => {
         return data;
       })
